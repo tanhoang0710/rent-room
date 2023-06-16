@@ -7,7 +7,16 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    const x = {
+      host: process.env.DB_HOST,
+      password: process.env.DB_PASSWORD,
+      username: process.env.DB_USERNAME,
+      database: process.env.DB_NAME,
+      port: +process.env.DB_PORT,
+    };
+    console.log('🚀 ~ file: data-source.ts:17 ~ x:', x);
+  }
 
   @Get()
   getHello(): string {

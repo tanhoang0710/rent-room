@@ -4,11 +4,25 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfigAsync } from './config/typeorm.config';
+import { UsersModule } from './users/users.module';
+import { PostsModule } from './posts/posts.module';
+import { LabelsModule } from './labels/labels.module';
+import { AttributesModule } from './attributes/attributes.module';
+import { ImagesModule } from './images/images.module';
+import { OverviewsModule } from './overviews/overviews.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
+    UsersModule,
+    PostsModule,
+    LabelsModule,
+    AttributesModule,
+    ImagesModule,
+    OverviewsModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
