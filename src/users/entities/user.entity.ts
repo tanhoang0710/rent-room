@@ -15,4 +15,7 @@ export class User extends BaseEntity {
 
   @Column()
   phone: string;
+
+  @Column({ default: null, nullable: true })
+  refreshToken: string;
 }

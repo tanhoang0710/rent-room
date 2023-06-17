@@ -10,7 +10,7 @@ import {
 
 export class BaseEntity extends TypeormBaseEntity {
   @PrimaryGeneratedColumn()
-  id!: string;
+  id!: number;
 
   @CreateDateColumn({ name: 'createdAt' })
   createdAt!: Date;

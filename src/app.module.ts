@@ -11,6 +11,7 @@ import { AttributesModule } from './attributes/attributes.module';
 import { ImagesModule } from './images/images.module';
 import { OverviewsModule } from './overviews/overviews.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CategoriesModule } from './categories/categories.module';
     ImagesModule,
     OverviewsModule,
     CategoriesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
