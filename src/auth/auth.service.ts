@@ -25,7 +25,7 @@ export class AuthService {
       this.jwtService.signAsync(
         { sub: userId },
         {
-          expiresIn: '10s',
+          expiresIn: 60 * 15,
           secret: this.configService.get<string>('JWT_ACCESS'),
         },
       ),
@@ -53,6 +53,7 @@ export class AuthService {
     });
 
     const { accessToken, refreshToken } = await this.getTokens(user.id);
+    await this.userService.updateRefeshToken(user.id, refreshToken);
     return {
       accessToken,
       refreshToken,
@@ -84,7 +85,7 @@ export class AuthService {
     const newAccessToken = await this.jwtService.signAsync(
       { sub: userID },
       {
-        expiresIn: '10s',
+        expiresIn: 60 * 15,
         secret: this.configService.get<string>('JWT_ACCESS'),
       },
     );
