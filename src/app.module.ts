@@ -12,6 +12,7 @@ import { ImagesModule } from './images/images.module';
 import { OverviewsModule } from './overviews/overviews.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from './auth/auth.module';
     OverviewsModule,
     CategoriesModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

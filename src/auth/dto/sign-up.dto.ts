@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEmail,
   IsMobilePhone,
   IsNotEmpty,
-  IsOptional,
   IsStrongPassword,
   MaxLength,
 } from 'class-validator';
@@ -29,6 +29,10 @@ export class SignUpDto {
   @ApiProperty({ example: '0987256698' })
   phone: string;
 
-  @IsOptional()
   refreshToken: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty({ example: 'tanhoang0710@gmail.com' })
+  email: string;
 }

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -9,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { SignInDto } from './dto/sign-in.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +18,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async getTokens(
@@ -46,6 +49,11 @@ export class AuthService {
 
   async signUp(signUpDto: SignUpDto) {
     const hashedPassword = await bcrypt.hash(signUpDto.password, 10);
+    const userWithDtoEmail = await this.userService.findOne({
+      email: signUpDto.email,
+    });
+    if (userWithDtoEmail)
+      throw new ConflictException('Email is already existed!');
     const user = await this.userService.createUser({
       ...signUpDto,
       refreshToken: null,
@@ -54,6 +62,10 @@ export class AuthService {
 
     const { accessToken, refreshToken } = await this.getTokens(user.id);
     await this.userService.updateRefeshToken(user.id, refreshToken);
+
+    // gui mail khi dki
+    await this.mailService.sendMailWhenSignUp(user.email);
+
     return {
       accessToken,
       refreshToken,
@@ -61,7 +73,7 @@ export class AuthService {
   }
 
   async signIn(signInDto: SignInDto) {
-    const user = await this.userService.findOneByPhone(signInDto.phone);
+    const user = await this.userService.findOne({ phone: signInDto.phone });
 
     if (!user) throw new NotFoundException('No user found with that phone');
     const isSamePassword = await bcrypt.compare(

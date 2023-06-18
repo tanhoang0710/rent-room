@@ -9,9 +9,12 @@ import { User } from 'src/users/entities/user.entity';
 import { JwtAccessTokenStrategy } from './strategies/jwtAccessToken.strategy';
 import { JwtRefreshTokenStrategy } from './strategies/jwtRefreshToken.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { MailModule } from 'src/mail/mail.module';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
+    MailModule,
     PassportModule,
     UsersModule,
     JwtModule.register({}),
@@ -19,6 +22,7 @@ import { PassportModule } from '@nestjs/passport';
   ],
   controllers: [AuthController],
   providers: [
+    MailService,
     AuthService,
     UsersService,
     JwtAccessTokenStrategy,

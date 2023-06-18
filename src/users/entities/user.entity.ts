@@ -18,4 +18,13 @@ export class User extends BaseEntity {
 
   @Column({ default: null, nullable: true })
   refreshToken: string;
+
+  @Column({ default: null, nullable: true, unique: true })
+  email: string;
+
+  @Column({ default: null, nullable: true })
+  resetPasswordToken: string;
+
+  @Column({ default: null, nullable: true })
+  resetPasswordExpires: Date;
 }
