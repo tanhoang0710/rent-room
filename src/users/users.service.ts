@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, MoreThan, Repository } from 'typeorm';
 import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 import * as moment from 'moment';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -71,13 +72,15 @@ export class UsersService {
     if (!user) throw new BadRequestException();
 
     const resetPasswordToken = crypto.randomBytes(32).toString('hex');
+    const resetPasswordTokenHashed = crypto
+      .createHash('sha256')
+      .update(resetPasswordToken)
+      .digest('hex');
+
     await this.userRepository.update(
       { email },
       {
-        resetPasswordToken: crypto
-          .createHash('sha256')
-          .update(resetPasswordToken)
-          .digest('hex'),
+        resetPasswordToken: resetPasswordTokenHashed,
         resetPasswordExpires: moment(new Date())
           .add(10, 'minutes')
           .format('YYYY-MM-DD hh:mm:ss'),
@@ -85,5 +88,38 @@ export class UsersService {
     );
 
     await this.mailService.sendForgotPasswordToken(email, resetPasswordToken);
+  }
+
+  async resetPassword(
+    resetPasswordToken: string,
+    resetPasswordDto: ResetPasswordDto,
+  ) {
+    const resetPasswordTokenHashed = crypto
+      .createHash('sha256')
+      .update(resetPasswordToken)
+      .digest('hex');
+
+    const user = await this.findOne({
+      resetPasswordToken: resetPasswordTokenHashed,
+      resetPasswordExpires: MoreThan(new Date()),
+    });
+
+    if (!user) throw new BadRequestException('Token is not valid!');
+
+    if (resetPasswordDto.newPassword !== resetPasswordDto.newPasswordConfirm)
+      throw new BadRequestException(
+        'New password and new password confirm must be equal!',
+      );
+
+    const newPasswordHashed = await bcrypt.hash(
+      resetPasswordDto.newPassword,
+      10,
+    );
+
+    return await this.userRepository.update(user.id, {
+      password: newPasswordHashed,
+      resetPasswordToken: null,
+      resetPasswordExpires: null,
+    });
   }
 }

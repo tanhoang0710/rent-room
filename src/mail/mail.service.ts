@@ -31,7 +31,7 @@ export class MailService {
   async sendForgotPasswordToken(to: string, resetPasswordToken: string) {
     const resetURL = `${this.request.protocol}://${this.request.get(
       'host',
-    )}/api/v1/users/reset-password/${resetPasswordToken}`;
+    )}/api-docs/users/reset-password/${resetPasswordToken}`;
 
     const message = `Forgot your password? Submit a PATCH request with your new password and password confirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email.`;
 
