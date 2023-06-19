@@ -6,7 +6,7 @@ export class Attribute extends BaseEntity {
   @Column()
   price: string;
 
-  @Column()
+  @Column({ default: '100m2' })
   arcreage: string;
 
   @Column()

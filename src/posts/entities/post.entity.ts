@@ -15,21 +15,21 @@ export class Post extends BaseEntity {
   @Column()
   address: string;
 
-  @Column()
-  attributeId: string;
+  @Column({ default: null })
+  attributeId: number;
 
   @Column()
   categoryCode: string;
 
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
-  @Column()
-  userId: string;
+  @Column({ default: null })
+  userId: number;
 
-  @Column()
-  overviewId: string;
+  @Column({ default: null })
+  overviewId: number;
 
-  @Column()
-  imagesId: string;
+  @Column({ default: null })
+  imagesId: number;
 }

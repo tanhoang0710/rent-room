@@ -18,9 +18,9 @@ export class Overview extends BaseEntity {
   @Column()
   bonus: string;
 
-  @Column()
+  @Column({ default: null })
   create: Date;
 
-  @Column()
+  @Column({ default: null })
   expire: Date;
 }
