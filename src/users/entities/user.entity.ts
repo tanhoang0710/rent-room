@@ -1,7 +1,8 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/base/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Post } from 'src/posts/entities/post.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -27,4 +28,7 @@ export class User extends BaseEntity {
 
   @Column({ default: null, nullable: true })
   resetPasswordExpires: Date;
+
+  @OneToMany(() => Post, (post) => post.user)
+  posts: Post[];
 }
