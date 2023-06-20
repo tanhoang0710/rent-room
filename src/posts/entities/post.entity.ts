@@ -26,8 +26,7 @@ export class Post extends BaseEntity {
   @JoinColumn()
   attribute: Attribute;
 
-  @OneToOne(() => Category, (category) => category.code)
-  @JoinColumn({ name: 'categoryCode', referencedColumnName: 'code' })
+  @ManyToOne(() => Category, (category) => category.posts)
   category: Category;
 
   @Column({ type: 'text' })
