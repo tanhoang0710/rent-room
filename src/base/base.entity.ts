@@ -9,12 +9,15 @@ import {
 } from 'typeorm';
 
 export class BaseEntity extends TypeormBaseEntity {
+  @Exclude()
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Exclude()
   @CreateDateColumn({ name: 'createdAt' })
   createdAt!: Date;
 
+  @Exclude()
   @UpdateDateColumn({ name: 'updatedAt' })
   updatedAt!: Date;
 

@@ -20,12 +20,17 @@ export class PostsService {
       relations: {
         image: true,
         attribute: true,
+        area: true,
+        price: true,
         overview: true,
         user: true,
         label: true,
         category: true,
       },
       select: {
+        deletedAt: false,
+        updatedAt: false,
+        createdAt: false,
         image: {
           image: true,
         },
@@ -34,6 +39,12 @@ export class PostsService {
           arcreage: true,
           published: true,
           hashtag: true,
+        },
+        price: {
+          value: true,
+        },
+        area: {
+          value: true,
         },
         overview: {
           code: true,
@@ -72,12 +83,17 @@ export class PostsService {
       relations: {
         image: true,
         attribute: true,
+        area: true,
+        price: true,
         overview: true,
         user: true,
         label: true,
         category: true,
       },
       select: {
+        deletedAt: false,
+        updatedAt: false,
+        createdAt: false,
         image: {
           image: true,
         },
@@ -86,6 +102,12 @@ export class PostsService {
           arcreage: true,
           published: true,
           hashtag: true,
+        },
+        price: {
+          value: true,
+        },
+        area: {
+          value: true,
         },
         overview: {
           code: true,

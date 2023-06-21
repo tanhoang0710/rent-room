@@ -1,9 +1,11 @@
+import { Area } from 'src/area/entities/area.entity';
 import { Attribute } from 'src/attributes/entities/attribute.entity';
 import { BaseEntity } from 'src/base/base.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Image } from 'src/images/entities/image.entity';
 import { Label } from 'src/labels/entities/label.entity';
 import { Overview } from 'src/overviews/entities/overview.entity';
+import { Price } from 'src/price/entities/price.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
@@ -42,4 +44,12 @@ export class Post extends BaseEntity {
   @OneToOne(() => Image, (image) => image.id)
   @JoinColumn()
   image: Image;
+
+  @ManyToOne(() => Area, (area) => area.posts)
+  @JoinColumn({ name: 'areaCode', referencedColumnName: 'code' })
+  area: Area;
+
+  @ManyToOne(() => Price, (price) => price.posts)
+  @JoinColumn({ name: 'priceCode', referencedColumnName: 'code' })
+  price: Price;
 }

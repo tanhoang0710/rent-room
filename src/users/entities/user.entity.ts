@@ -1,6 +1,7 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/base/base.entity';
+import { ROLES } from 'src/common/enum/roles.enum';
 import { Post } from 'src/posts/entities/post.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
@@ -31,4 +32,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
+
+  @Column({ type: 'enum', enum: ROLES, default: ROLES.NORMAL })
+  role: ROLES;
 }

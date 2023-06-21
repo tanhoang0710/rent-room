@@ -13,6 +13,8 @@ import { OverviewsModule } from './overviews/overviews.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
+import { PriceModule } from './price/price.module';
+import { AreaModule } from './area/area.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { MailModule } from './mail/mail.module';
     CategoriesModule,
     AuthModule,
     MailModule,
+    PriceModule,
+    AreaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
