@@ -14,7 +14,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PriceService } from './price.service';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Price } from './entities/price.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { JwtAccessTokenGuard } from 'src/auth/guards/jwtAccessToken.guard';
@@ -62,7 +68,7 @@ export class PriceController {
     name: 'id',
     example: 1,
   })
-  async getOnePost(@Param('id', ParseIntPipe) id: number) {
+  async getOnePrice(@Param('id', ParseIntPipe) id: number) {
     return await this.priceService.getOne(id);
   }
 
@@ -90,6 +96,9 @@ export class PriceController {
     name: 'id',
     example: 1,
   })
+  @ApiOperation({
+    summary: 'Soft Delete Price',
+  })
   async deletePrice(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<UpdateResult> {
@@ -101,6 +110,9 @@ export class PriceController {
   @ApiParam({
     name: 'id',
     example: 1,
+  })
+  @ApiOperation({
+    summary: 'Restore Price',
   })
   async restorePrice(
     @Param('id', ParseIntPipe) id: number,

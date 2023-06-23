@@ -8,6 +8,7 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
+import { IFilterOptions } from 'src/common/interfaces/filterOptions.interface';
 
 @Injectable()
 export class PostsService {
@@ -15,8 +16,22 @@ export class PostsService {
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
   ) {}
 
-  async getAllPost(options: IPaginationOptions): Promise<Pagination<Post>> {
+  async getAllPost(
+    options: IPaginationOptions,
+    filterOptions: IFilterOptions,
+  ): Promise<Pagination<Post>> {
     const posts = await paginate(this.postRepository, options, {
+      where: {
+        price: {
+          code: filterOptions.priceCode,
+        },
+        area: {
+          code: filterOptions.areaCode,
+        },
+        category: {
+          id: filterOptions.categoryId,
+        },
+      },
       relations: {
         image: true,
         attribute: true,
