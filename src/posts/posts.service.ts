@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { CreatePostDto } from './dao/create-post.dto';
@@ -30,6 +30,16 @@ export class PostsService {
         },
         category: {
           id: filterOptions.categoryId,
+        },
+        attribute: {
+          price: Between(
+            filterOptions.condition.price?.min || 0,
+            filterOptions.condition.price?.max || 999,
+          ),
+          arcreage: Between(
+            filterOptions.condition.arcreage?.min || 0,
+            filterOptions.condition.arcreage?.max || 999,
+          ),
         },
       },
       relations: {
