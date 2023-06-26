@@ -12,4 +12,10 @@ export class Area extends BaseEntity {
 
   @OneToMany(() => Post, (post) => post.area)
   posts: Post[];
+
+  @Column({ default: 0, nullable: true })
+  min: number;
+
+  @Column({ default: 0, nullable: true })
+  max: number;
 }

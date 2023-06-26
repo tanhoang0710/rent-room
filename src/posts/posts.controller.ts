@@ -7,14 +7,17 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './entities/post.entity';
-import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreatePostDto } from './dao/create-post.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ICondition } from './interface/condition.interface';
 import { ParseOptionPipe } from './pipes/parseOption.pipe';
+import { JwtAccessTokenGuard } from 'src/auth/guards/jwtAccessToken.guard';
+import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -81,7 +84,12 @@ export class PostsController {
   }
 
   @Post()
-  async createPost(@Body() createPostDto: CreatePostDto) {
-    return createPostDto;
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAccessTokenGuard)
+  async createPost(
+    @Body() createPostDto: CreatePostDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return await this.postsService.createPost(createPostDto, userId);
   }
 }

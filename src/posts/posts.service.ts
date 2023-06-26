@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import * as moment from 'moment';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
@@ -9,11 +10,28 @@ import {
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
 import { IFilterOptions } from 'src/common/interfaces/filterOptions.interface';
+import { LabelsService } from 'src/labels/labels.service';
+import { generateCode } from 'src/utils/generateCode.util';
+import { AttributesService } from 'src/attributes/attributes.service';
+import { OverviewsService } from 'src/overviews/overviews.service';
+import { ImagesService } from 'src/images/images.service';
+import { UsersService } from 'src/users/users.service';
+import { CategoriesService } from 'src/categories/categories.service';
+import { PriceService } from 'src/price/price.service';
+import { AreaService } from 'src/area/area.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
+    private readonly labelService: LabelsService,
+    private readonly attributeService: AttributesService,
+    private readonly overviewService: OverviewsService,
+    private readonly imageService: ImagesService,
+    private readonly userService: UsersService,
+    private readonly categoryService: CategoriesService,
+    private readonly priceSevice: PriceService,
+    private readonly areaService: AreaService,
   ) {}
 
   async getAllPost(
@@ -163,10 +181,68 @@ export class PostsService {
     return post;
   }
 
-  async createPost(createPostDto: CreatePostDto) {
-    return new Promise((resolve, reject) => {
-      resolve(createPostDto);
-      reject(2);
+  async createPost(createPostDto: CreatePostDto, userId: number) {
+    const hashtag = generateCode(6);
+
+    const label = await this.labelService.createLabel({
+      code: generateCode(4),
+      value: createPostDto.labelValue,
     });
+
+    const attribute = await this.attributeService.createAttribute({
+      arcreage: createPostDto.arcreage,
+      price: createPostDto.price,
+      hashtag,
+      published: moment(new Date()).format('YYYY-MM-DD hh:mm:ss'),
+    });
+
+    const overview = await this.overviewService.createOverview({
+      target: createPostDto.overiewTarget,
+      bonus: createPostDto.overviewBonus,
+      code: `#${hashtag}`,
+      area: createPostDto.address,
+      type: 'Cho thue can ho',
+    });
+
+    const image = await this.imageService.createImage({
+      image: createPostDto.image,
+    });
+
+    const user = await this.userService.findOne({ id: userId });
+
+    if (!user) throw new BadRequestException();
+
+    const category = await this.categoryService.getOne(
+      createPostDto.categoryId,
+    );
+
+    if (!category) throw new BadRequestException();
+
+    const prices = await this.priceSevice.getAllNoPageable();
+    const price = prices.find(
+      (price) =>
+        createPostDto.price >= price.min && createPostDto.price < price.max,
+    );
+    const areas = await this.areaService.getAllNoPageable();
+    const area = areas.find(
+      (area) =>
+        createPostDto.arcreage >= area.min && createPostDto.arcreage < area.max,
+    );
+
+    const post = await this.postRepository.save({
+      title: createPostDto.title,
+      address: createPostDto.address,
+      attribute,
+      user,
+      overview,
+      image,
+      description: createPostDto.description,
+      label,
+      category,
+      price,
+      area,
+    });
+
+    return post;
   }
 }

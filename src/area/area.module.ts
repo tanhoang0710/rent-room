@@ -9,5 +9,6 @@ import { UsersModule } from 'src/users/users.module';
   imports: [TypeOrmModule.forFeature([Area]), UsersModule],
   providers: [AreaService],
   controllers: [AreaController],
+  exports: [AreaService],
 })
 export class AreaModule {}

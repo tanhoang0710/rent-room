@@ -24,6 +24,10 @@ export class PriceService {
     return prices;
   }
 
+  async getAllNoPageable(): Promise<Price[]> {
+    return await this.priceRepository.find();
+  }
+
   async getOne(id: number): Promise<Price> {
     const price = await this.priceRepository.findOne({
       where: {

@@ -25,6 +25,10 @@ export class AreaService {
     return areas;
   }
 
+  async getAllNoPageable(): Promise<Area[]> {
+    return await this.areaRepository.find();
+  }
+
   async getOne(id: number): Promise<Area> {
     const area = await this.areaRepository.findOne({
       where: {
