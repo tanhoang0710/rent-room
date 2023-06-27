@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Price } from './entities/price.entity';
 import { Repository, UpdateResult } from 'typeorm';
@@ -18,7 +18,7 @@ export class PriceService {
   ) {}
   async getAll(options: IPaginationOptions): Promise<Pagination<Price>> {
     const prices = await paginate(this.priceRepository, options, {
-      select: ['value', 'code', 'id'],
+      select: ['value', 'code', 'id', 'max', 'min'],
     });
 
     return prices;
@@ -33,7 +33,7 @@ export class PriceService {
       where: {
         id,
       },
-      select: ['value', 'code', 'id'],
+      select: ['value', 'code', 'id', 'max', 'min'],
     });
 
     return price;
@@ -45,19 +45,25 @@ export class PriceService {
       id: price.id,
       code: price.code,
       value: price.value,
+      min: price.min,
+      max: price.max,
     };
   }
 
   async updatePrice(
     id: number,
     updatePriceDto: UpdatePriceDto,
-  ): Promise<UpdateResult> {
+  ): Promise<Price> {
     const updateResult = await this.priceRepository.update(id, {
       code: updatePriceDto.code,
       value: updatePriceDto.value,
+      min: updatePriceDto.min,
+      max: updatePriceDto.max,
     });
 
-    return updateResult;
+    if (updateResult.affected === 1) return await this.getOne(id);
+
+    throw new BadRequestException();
   }
 
   async deletePrice(id: number): Promise<UpdateResult> {

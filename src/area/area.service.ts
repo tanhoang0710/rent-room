@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Area } from './entities/area.entity';
 import { Repository, UpdateResult } from 'typeorm';
@@ -19,7 +19,7 @@ export class AreaService {
 
   async getAll(options: IPaginationOptions): Promise<Pagination<Area>> {
     const areas = await paginate(this.areaRepository, options, {
-      select: ['value', 'code', 'id'],
+      select: ['value', 'code', 'id', 'max', 'min'],
     });
 
     return areas;
@@ -34,7 +34,7 @@ export class AreaService {
       where: {
         id,
       },
-      select: ['value', 'code', 'id'],
+      select: ['value', 'code', 'id', 'min', 'max'],
     });
 
     return area;
@@ -46,19 +46,22 @@ export class AreaService {
       id: area.id,
       code: area.code,
       value: area.value,
+      min: area.min,
+      max: area.max,
     };
   }
 
-  async updateArea(
-    id: number,
-    updateAreaDto: UpdateAreaDto,
-  ): Promise<UpdateResult> {
+  async updateArea(id: number, updateAreaDto: UpdateAreaDto): Promise<Area> {
     const updateResult = await this.areaRepository.update(id, {
       code: updateAreaDto.code,
       value: updateAreaDto.value,
+      min: updateAreaDto.min,
+      max: updateAreaDto.max,
     });
 
-    return updateResult;
+    if (updateResult.affected === 1) return await this.getOne(id);
+
+    throw new BadRequestException();
   }
 
   async deleteArea(id: number): Promise<UpdateResult> {

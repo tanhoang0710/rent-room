@@ -99,6 +99,7 @@ export class PostsService {
           expire: true,
         },
         user: {
+          id: true,
           name: true,
           phone: true,
           email: true,
@@ -118,11 +119,12 @@ export class PostsService {
     return posts;
   }
 
-  async getOnePost(id: number): Promise<Post> {
+  async getOnePost(id: number, withDeleted: boolean): Promise<Post> {
     const post = await this.postRepository.findOne({
       where: {
         id,
       },
+      withDeleted: withDeleted ? true : false,
       relations: {
         image: true,
         attribute: true,
@@ -162,6 +164,7 @@ export class PostsService {
           expire: true,
         },
         user: {
+          id: true,
           name: true,
           phone: true,
           email: true,
@@ -244,5 +247,19 @@ export class PostsService {
     });
 
     return post;
+  }
+
+  async deletePost(id: number): Promise<boolean> {
+    const result = await this.postRepository.softDelete(id);
+
+    if (result.affected === 1) return true;
+    return false;
+  }
+
+  async restorePost(id: number): Promise<boolean> {
+    const result = await this.postRepository.restore(id);
+
+    if (result.affected === 1) return true;
+    return false;
   }
 }

@@ -87,7 +87,7 @@ export class AreaController {
   async updateArea(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateAreaDto: UpdateAreaDto,
-  ): Promise<UpdateResult> {
+  ): Promise<Area> {
     return await this.areaService.updateArea(id, updateAreaDto);
   }
 

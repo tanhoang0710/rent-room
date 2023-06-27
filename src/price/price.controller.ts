@@ -87,7 +87,7 @@ export class PriceController {
   async updatePrice(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePriceDto: UpdatePriceDto,
-  ): Promise<UpdateResult> {
+  ): Promise<Price> {
     return await this.priceService.updatePrice(id, updatePriceDto);
   }
 
