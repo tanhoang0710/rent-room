@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -32,6 +33,8 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { ROLES } from 'src/common/enum/roles.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { UserHasPostOrAdminGuard } from 'src/common/guards/userHasPostOrAdmin.guard';
+import { UpdatePostDto } from './dao/update-post.dto';
+import { StarPostDto } from './dao/star-post.dto';
 
 @Controller('posts')
 @ApiTags('posts')
@@ -146,5 +149,34 @@ export class PostsController {
 
     if (result) return true;
     throw new BadRequestException();
+  }
+
+  @Patch(':id')
+  @ApiParam({
+    name: 'id',
+    example: 1,
+  })
+  @ApiBearerAuth('access-token')
+  @UseGuards(RolesGuard, UserHasPostOrAdminGuard)
+  @UseGuards(JwtAccessTokenGuard)
+  @Roles(ROLES.ADMIN, ROLES.NORMAL)
+  async updatePost(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return await this.postsService.updatePost(id, updatePostDto);
+  }
+
+  @Patch(':id/star')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiParam({
+    name: 'id',
+    example: 1,
+  })
+  async startPost(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() starPostDto: StarPostDto,
+  ) {
+    return await this.postsService.starPort(id, starPostDto);
   }
 }

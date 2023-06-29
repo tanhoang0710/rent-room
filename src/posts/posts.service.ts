@@ -1,5 +1,9 @@
 import * as moment from 'moment';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
@@ -19,6 +23,8 @@ import { UsersService } from 'src/users/users.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { PriceService } from 'src/price/price.service';
 import { AreaService } from 'src/area/area.service';
+import { UpdatePostDto } from './dao/update-post.dto';
+import { StarPostDto } from './dao/star-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -143,18 +149,22 @@ export class PostsService {
           image: true,
         },
         attribute: {
+          id: true,
           price: true,
           arcreage: true,
           published: true,
           hashtag: true,
         },
         price: {
+          id: true,
           value: true,
         },
         area: {
+          id: true,
           value: true,
         },
         overview: {
+          id: true,
           code: true,
           area: true,
           type: true,
@@ -170,10 +180,12 @@ export class PostsService {
           email: true,
         },
         label: {
+          id: true,
           code: true,
           value: true,
         },
         category: {
+          id: true,
           code: true,
           value: true,
           subtitle: true,
@@ -261,5 +273,125 @@ export class PostsService {
 
     if (result.affected === 1) return true;
     return false;
+  }
+
+  async updatePost(id: number, updatePostDto: UpdatePostDto): Promise<Post> {
+    const post = await this.getOnePost(id, false);
+    const {
+      labelValue,
+      price,
+      arcreage,
+      overiewTarget,
+      overviewBonus,
+      address,
+      categoryId,
+      description,
+      title,
+    } = updatePostDto;
+
+    try {
+      if (labelValue) {
+        const resultUpdateLabel = await this.labelService.updateLabel(
+          post.label.id,
+          { value: labelValue },
+        );
+
+        if (!resultUpdateLabel) throw new BadRequestException();
+      }
+
+      if (price) {
+        const resultUpdateAttribute =
+          await this.attributeService.updateAttribute(post.attribute.id, {
+            price,
+            published: moment(new Date()).format('YYYY-MM-DD hh:mm:ss'),
+          });
+
+        if (!resultUpdateAttribute) throw new BadRequestException();
+        const prices = await this.priceSevice.getAllNoPageable();
+        const priceItem = prices.find((p) => price >= p.min && price < p.max);
+
+        if (priceItem)
+          await this.postRepository.update(id, {
+            price: priceItem,
+          });
+        else throw new BadRequestException();
+      }
+
+      if (arcreage) {
+        const resultUpdateAttribute =
+          await this.attributeService.updateAttribute(post.attribute.id, {
+            arcreage,
+            published: moment(new Date()).format('YYYY-MM-DD hh:mm:ss'),
+          });
+
+        if (!resultUpdateAttribute) throw new BadRequestException();
+        const areas = await this.areaService.getAllNoPageable();
+        const areaItem = areas.find(
+          (a) => arcreage >= a.min && arcreage < a.max,
+        );
+
+        if (areaItem)
+          await this.postRepository.update(id, {
+            area: areaItem,
+          });
+        else throw new BadRequestException();
+      }
+
+      if (overiewTarget) {
+        const resultUpdateOverview = await this.overviewService.updateOverview(
+          post.overview.id,
+          {
+            target: overiewTarget,
+          },
+        );
+
+        if (!resultUpdateOverview) throw new BadRequestException();
+      }
+
+      if (overviewBonus) {
+        const resultUpdateOverview = await this.overviewService.updateOverview(
+          post.overview.id,
+          {
+            bonus: overviewBonus,
+          },
+        );
+
+        if (!resultUpdateOverview) throw new BadRequestException();
+      }
+
+      if (address) {
+        const resultUpdateOverview = await this.overviewService.updateOverview(
+          post.overview.id,
+          {
+            area: address,
+          },
+        );
+
+        if (!resultUpdateOverview) throw new BadRequestException();
+      }
+
+      const category = await this.categoryService.getOne(categoryId);
+
+      if (!category) throw new BadRequestException();
+
+      await this.postRepository.update(id, {
+        address,
+        description,
+        title,
+        category,
+      });
+      return await this.getOnePost(id, false);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async starPort(id: number, starPostDto: StarPostDto) {
+    const result = await this.postRepository.update(id, {
+      star: starPostDto.star,
+    });
+
+    if (result.affected === 1) return true;
+    throw new InternalServerErrorException();
   }
 }
