@@ -15,6 +15,10 @@ export class UserIsUserGuard implements CanActivate {
       id: user.sub,
     });
 
-    return userInDB && userInDB.email === request.params.email;
+    return (
+      userInDB &&
+      (userInDB.email === request.params.email ||
+        userInDB.id === +request.params.id)
+    );
   }
 }

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { FindOptionsWhere, MoreThan, Repository } from 'typeorm';
@@ -9,6 +14,7 @@ import * as crypto from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 import * as moment from 'moment';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -121,5 +127,56 @@ export class UsersService {
       resetPasswordToken: null,
       resetPasswordExpires: null,
     });
+  }
+
+  async updateProfile(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<boolean> {
+    try {
+      const user = await this.findOne({ id });
+
+      if (!user) throw new NotFoundException('No user found with that ID');
+
+      const result = await this.userRepository.update(id, updateUserDto);
+
+      if (result.affected === 1) return true;
+
+      throw new BadRequestException();
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getAllUser(): Promise<User[]> {
+    try {
+      const users = await this.userRepository.find({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      });
+      return users;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getOne(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
+    if (!user) throw new NotFoundException();
+    return user;
   }
 }
